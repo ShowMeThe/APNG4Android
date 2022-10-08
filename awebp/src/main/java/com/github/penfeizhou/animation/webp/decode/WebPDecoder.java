@@ -112,7 +112,7 @@ public class WebPDecoder extends FrameSeqDecoder<WebPReader, WebPWriter> {
 
     @Override
     protected void renderFrame(Frame<WebPReader, WebPWriter> frame) {
-        if (frame == null || fullRect == null) {
+        if (frame == null || fullRect == null || frameBuffer == null) {
             return;
         }
         if (fullRect.width() <= 0 || fullRect.height() <= 0) {

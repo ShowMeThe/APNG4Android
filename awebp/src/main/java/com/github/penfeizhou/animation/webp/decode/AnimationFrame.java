@@ -80,9 +80,13 @@ public class AnimationFrame extends Frame<WebPReader, WebPWriter> {
         options.inBitmap = reusedBitmap;
         int length = encode(writer);
         byte[] bytes = writer.toByteArray();
-        Bitmap bitmap;
+        Bitmap bitmap = null;
         try {
             bitmap = BitmapFactory.decodeByteArray(bytes, 0, length, options);
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            System.gc();
+            System.runFinalization();
         } catch (IllegalArgumentException e) {
             // Problem decoding into existing bitmap when on Android 4.2.2 & 4.3
             BitmapFactory.Options optionsFixed = new BitmapFactory.Options();

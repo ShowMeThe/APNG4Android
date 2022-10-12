@@ -237,7 +237,11 @@ public abstract class FrameAnimationDrawable<Decoder extends FrameSeqDecoder> ex
             }
         }
         byteBuffer.rewind();
-        if (this.bitmap == null || byteBuffer.remaining() < this.bitmap.getByteCount()) {
+        if(this.bitmap == null){
+            Log.e(TAG, "onRender: frame bitmap == null");
+            return;
+        }
+        if (byteBuffer.remaining() < this.bitmap.getByteCount()) {
             Log.e(TAG, "onRender:Buffer not large enough for pixels");
             return;
         }

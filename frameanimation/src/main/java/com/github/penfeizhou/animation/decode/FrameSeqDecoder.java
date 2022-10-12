@@ -443,16 +443,17 @@ public abstract class FrameSeqDecoder<R extends Reader, W extends Writer> {
         return sampleSize;
     }
 
+    private AtomicBoolean mSampleSizeChanged = new AtomicBoolean(false);
     public boolean setDesiredSize(int width, int height) {
-        boolean sampleSizeChanged = false;
+        mSampleSizeChanged.set(false);
         final int sample = getDesiredSample(width, height);
         if (sample != this.sampleSize) {
-            sampleSizeChanged = true;
             final boolean tempRunning = isRunning();
             workerHandler.removeCallbacks(renderTask);
             workerHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    mSampleSizeChanged.set(true);
                     innerStop();
                     try {
                         sampleSize = sample;
@@ -466,7 +467,7 @@ public abstract class FrameSeqDecoder<R extends Reader, W extends Writer> {
                 }
             });
         }
-        return sampleSizeChanged;
+        return mSampleSizeChanged.get();
     }
 
     protected int getDesiredSample(int desiredWidth, int desiredHeight) {

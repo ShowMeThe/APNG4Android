@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 
 import com.github.penfeizhou.animation.decode.Frame;
+import com.github.penfeizhou.animation.util.Utils;
 import com.github.penfeizhou.animation.webp.io.WebPReader;
 import com.github.penfeizhou.animation.webp.io.WebPWriter;
 
@@ -68,6 +69,9 @@ public class AnimationFrame extends Frame<WebPReader, WebPWriter> {
             reader.read(writer.toByteArray(), writer.position(), this.imagePayloadSize);
         } catch (IOException e) {
             e.printStackTrace();
+        }catch (OutOfMemoryError error){
+            error.printStackTrace();
+            Utils.tryGc();
         }
         return size;
     }
@@ -85,8 +89,7 @@ public class AnimationFrame extends Frame<WebPReader, WebPWriter> {
             bitmap = BitmapFactory.decodeByteArray(bytes, 0, length, options);
         } catch (OutOfMemoryError e) {
             e.printStackTrace();
-            System.gc();
-            System.runFinalization();
+            Utils.tryGc();
         } catch (IllegalArgumentException e) {
             // Problem decoding into existing bitmap when on Android 4.2.2 & 4.3
             BitmapFactory.Options optionsFixed = new BitmapFactory.Options();

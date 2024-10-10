@@ -12,6 +12,7 @@ import com.github.penfeizhou.animation.executor.FrameDecoderExecutor;
 import com.github.penfeizhou.animation.io.Reader;
 import com.github.penfeizhou.animation.io.Writer;
 import com.github.penfeizhou.animation.loader.Loader;
+import com.github.penfeizhou.animation.util.Utils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -139,6 +140,7 @@ public abstract class FrameSeqDecoder<R extends Reader, W extends Writer> {
                 e.printStackTrace();
             } catch (OutOfMemoryError e) {
                 e.printStackTrace();
+                Utils.tryGc();
             }
             return ret;
         }
@@ -256,8 +258,7 @@ public abstract class FrameSeqDecoder<R extends Reader, W extends Writer> {
             }
         } catch (OutOfMemoryError error) {
             error.printStackTrace();
-            System.gc();
-            System.runFinalization();
+            Utils.tryGc();
         }
     }
 
@@ -342,9 +343,9 @@ public abstract class FrameSeqDecoder<R extends Reader, W extends Writer> {
                 }
             }
             cacheBitmaps.clear();
-        }
-        if (frameBuffer != null) {
-            frameBuffer = null;
+            if (frameBuffer != null) {
+                frameBuffer = null;
+            }
         }
         cachedCanvas.clear();
         try {
@@ -575,6 +576,7 @@ public abstract class FrameSeqDecoder<R extends Reader, W extends Writer> {
     public int getMemorySize() {
         synchronized (cacheBitmapsLock) {
             int size = 0;
+            ByteBuffer byteBuffer = frameBuffer;
             for (Bitmap bitmap : cacheBitmaps) {
                 if (bitmap.isRecycled()) {
                     continue;
@@ -585,8 +587,8 @@ public abstract class FrameSeqDecoder<R extends Reader, W extends Writer> {
                     size += bitmap.getByteCount();
                 }
             }
-            if (frameBuffer != null) {
-                size += frameBuffer.capacity();
+            if (byteBuffer != null) {
+                size += byteBuffer.capacity();
             }
             return size;
         }

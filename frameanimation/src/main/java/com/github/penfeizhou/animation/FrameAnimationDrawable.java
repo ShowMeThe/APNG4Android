@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.github.penfeizhou.animation.decode.FrameSeqDecoder;
 import com.github.penfeizhou.animation.loader.Loader;
+import com.github.penfeizhou.animation.util.Utils;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -232,8 +233,7 @@ public abstract class FrameAnimationDrawable<Decoder extends FrameSeqDecoder> ex
                         Bitmap.Config.ARGB_8888);
             }catch (OutOfMemoryError o){
                 o.printStackTrace();
-                System.gc();
-                System.runFinalization();
+                Utils.tryGc();
             }
         }
         byteBuffer.rewind();
@@ -248,6 +248,8 @@ public abstract class FrameAnimationDrawable<Decoder extends FrameSeqDecoder> ex
         this.bitmap.copyPixelsFromBuffer(byteBuffer);
         uiHandler.post(invalidateRunnable);
     }
+
+
 
     @Override
     public void onEnd() {
